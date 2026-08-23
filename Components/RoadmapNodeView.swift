@@ -5,6 +5,8 @@ struct RoadmapNodeView: View {
     let isNext: Bool
     let onMarkSeen: () -> Void
     let onMarkRewatch: () -> Void
+    let onUnmarkSeen: () -> Void
+    let onUnmarkRewatch: () -> Void
 
     @State private var justCompleted = false
 
@@ -13,7 +15,13 @@ struct RoadmapNodeView: View {
             connectorRail
 
             NavigationLink {
-                TitleDetailView(title: title, onMarkSeen: onMarkSeen, onMarkRewatch: onMarkRewatch)
+                TitleDetailView(
+                    title: title,
+                    onMarkSeen: onMarkSeen,
+                    onMarkRewatch: onMarkRewatch,
+                    onUnmarkSeen: onUnmarkSeen,
+                    onUnmarkRewatch: onUnmarkRewatch
+                )
             } label: {
                 HStack(spacing: 14) {
                     ZStack(alignment: .bottomTrailing) {

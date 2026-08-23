@@ -1,15 +1,23 @@
 import SwiftUI
 import UIKit
 
-/// Muestra el poster real si existe en el asset catalog (nombre = posterAssetName),
-/// y si no, cae a un placeholder generado con gradiente + icono + título.
+/// Muestra el póster real de TMDb si se pudo descargar (o si hay un asset
+/// local con el nombre de posterAssetName), y si no, cae a un placeholder
+/// generado con gradiente + icono + título. Nunca se queda "roto" ni en blanco.
 struct PosterView: View {
     let title: MCUTitle
     var cornerRadius: CGFloat = 12
 
+    @State private var remoteImage: UIImage?
+    @State private var didAttemptLoad = false
+
     var body: some View {
         ZStack {
-            if UIImage(named: title.posterAssetName) != nil {
+            if let remoteImage {
+                Image(uiImage: remoteImage)
+                    .resizable()
+                    .aspectRatio(2/3, contentMode: .fill)
+            } else if UIImage(named: title.posterAssetName) != nil {
                 Image(title.posterAssetName)
                     .resizable()
                     .aspectRatio(2/3, contentMode: .fill)
@@ -18,6 +26,14 @@ struct PosterView: View {
             }
         }
         .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+        .task(id: title.id) {
+            guard !didAttemptLoad else { return }
+            didAttemptLoad = true
+            guard let url = await TMDbPosterService.shared.posterURL(for: title) else { return }
+            guard let (data, _) = try? await URLSession.shared.data(from: url) else { return }
+            guard let image = UIImage(data: data) else { return }
+            remoteImage = image
+        }
     }
 
     private var placeholder: some View {

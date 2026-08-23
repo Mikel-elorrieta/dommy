@@ -33,7 +33,9 @@ struct ChecklistView: View {
                         ChecklistRow(
                             item: item,
                             onMarkSeen: { roadmapViewModel.markSeenBefore(item, context: context) },
-                            onMarkRewatch: { roadmapViewModel.markRewatch(item, context: context) }
+                            onMarkRewatch: { roadmapViewModel.markRewatch(item, context: context) },
+                            onUnmarkSeen: { roadmapViewModel.unmarkSeen(item, context: context) },
+                            onUnmarkRewatch: { roadmapViewModel.unmarkRewatch(item, context: context) }
                         )
                     }
                 }
@@ -72,11 +74,19 @@ private struct ChecklistRow: View {
     @Bindable var item: MCUTitle
     let onMarkSeen: () -> Void
     let onMarkRewatch: () -> Void
+    let onUnmarkSeen: () -> Void
+    let onUnmarkRewatch: () -> Void
 
     var body: some View {
         HStack(spacing: 12) {
             NavigationLink {
-                TitleDetailView(title: item, onMarkSeen: onMarkSeen, onMarkRewatch: onMarkRewatch)
+                TitleDetailView(
+                    title: item,
+                    onMarkSeen: onMarkSeen,
+                    onMarkRewatch: onMarkRewatch,
+                    onUnmarkSeen: onUnmarkSeen,
+                    onUnmarkRewatch: onUnmarkRewatch
+                )
             } label: {
                 HStack(spacing: 12) {
                     PosterView(title: item).frame(width: 50, height: 75)

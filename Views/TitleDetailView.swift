@@ -5,6 +5,8 @@ struct TitleDetailView: View {
     @Bindable var title: MCUTitle
     let onMarkSeen: () -> Void
     let onMarkRewatch: () -> Void
+    let onUnmarkSeen: () -> Void
+    let onUnmarkRewatch: () -> Void
 
     private static let dateFormatter: DateFormatter = {
         let f = DateFormatter()
@@ -101,6 +103,18 @@ struct TitleDetailView: View {
             }
             .disabled(title.isSeenBefore)
 
+            // Deshacer "vista anteriormente" — solo visible cuando hay algo que
+            // deshacer. Al quitarlo, el modelo resetea también el rewatch en
+            // cascada (no puede haber rewatch de algo no visto), así que avisamos.
+            if title.isSeenBefore {
+                Button(role: .destructive, action: onUnmarkSeen) {
+                    Text(title.isRewatchedDoomsday ? "Quitar marca (también quita el Rewatch)" : "Quitar marca de \"vista\"")
+                        .font(.caption.weight(.semibold))
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(.red.opacity(0.85))
+            }
+
             Button(action: onMarkRewatch) {
                 Label(
                     title.isRewatchedDoomsday ? "🔥 Rewatch Doomsday ✓" : "🔄 REWATCH DOOMSDAY",
@@ -114,6 +128,16 @@ struct TitleDetailView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 14))
             }
             .disabled(title.isRewatchedDoomsday)
+
+            // Deshacer SOLO el rewatch, conservando "vista anteriormente".
+            if title.isRewatchedDoomsday {
+                Button(role: .destructive, action: onUnmarkRewatch) {
+                    Text("Quitar marca de Rewatch (mantiene \"vista\")")
+                        .font(.caption.weight(.semibold))
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(.red.opacity(0.85))
+            }
         }
     }
 }

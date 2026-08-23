@@ -37,7 +37,9 @@ struct RoadToDoomsdayView: View {
                                 title: item,
                                 isNext: item.id == viewModel.nextStop(from: allTitles)?.id,
                                 onMarkSeen: { viewModel.markSeenBefore(item, context: context) },
-                                onMarkRewatch: { viewModel.markRewatch(item, context: context) }
+                                onMarkRewatch: { viewModel.markRewatch(item, context: context) },
+                                onUnmarkSeen: { viewModel.unmarkSeen(item, context: context) },
+                                onUnmarkRewatch: { viewModel.unmarkRewatch(item, context: context) }
                             )
                         }
                     }

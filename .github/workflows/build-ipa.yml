@@ -1,0 +1,55 @@
+name: Build unsigned IPA
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: macos-15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Instalar XcodeGen
+        run: brew install xcodegen
+
+      - name: Generar el .xcodeproj
+        run: xcodegen generate
+
+      - name: Seleccionar Xcode
+        run: sudo xcode-select -s /Applications/Xcode.app
+
+      - name: Compilar (sin firmar) para dispositivo iOS
+        run: |
+          xcodebuild build \
+            -project MCURewatch.xcodeproj \
+            -scheme MCURewatch \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination "generic/platform=iOS" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            DEVELOPMENT_TEAM="" \
+            -derivedDataPath build
+
+      - name: Empaquetar como .ipa (sin firmar)
+        run: |
+          set -e
+          APP_PATH=$(find build/Build/Products -maxdepth 2 -name "*.app" | head -n 1)
+          echo "App encontrada en: $APP_PATH"
+          mkdir -p Payload
+          cp -R "$APP_PATH" Payload/
+          zip -r MCURewatch-unsigned.ipa Payload
+          mkdir -p out
+          mv MCURewatch-unsigned.ipa out/
+
+      - name: Subir IPA como artefacto descargable
+        uses: actions/upload-artifact@v4
+        with:
+          name: MCURewatch-unsigned-ipa
+          path: out/MCURewatch-unsigned.ipa
+          retention-days: 14

@@ -6,6 +6,7 @@ enum PersistenceController {
 
     static let schema = Schema([MCUTitle.self])
 
+    @MainActor
     static func makeContainer() -> ModelContainer {
         let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
         let container: ModelContainer
